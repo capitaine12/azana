@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assistant Azana</title>
+<style>
+/* Styles CSS pour la mise en page */
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+form {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+}
+
+#reponse {
+    margin-top: 20px;
+    font-weight: bold;
+    opacity: 0; /* Caché initialement */
+    transition: opacity 0.5s ease-in-out; /* Animation de transition */
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Bienvenue à l'Assistant Azana</h1>
+    <p>Poser vos questions et obtenez des réponses instantanées !</p>
+    <br /><br />
+    
+        <div id="reponse"></div>
+        
+        <br /><br />
+    <form id="questionForm">
+        <label for="question">Posez votre question :</label>
+        <input type="text" id="question" name="question" placeholder="Posez votre question ici" required>
+        <button type="submit">Envoyer</button>
+    </form>
+
+</div>
+
+<script>
+// Vérifie si des réponses sont déjà stockées en local storage
+window.onload = function() {
+    afficherReponsesStockees();
+}
+
+document.getElementById('questionForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Empêcher le formulaire de se soumettre normalement
+    
+    var question = document.getElementById('question').value;
+    var reponse = document.getElementById('reponse');
+    
+    afficherReponseTypewriter(repondreQuestion(question), reponse);
+    document.getElementById('question').value = ''; // Vider le champ de saisie
+    
+    // Enregistrer la réponse dans le stockage local
+    localStorage.setItem('derniereReponse', reponse.textContent);
+});
+
+function afficherReponseTypewriter(reponse, element) {
+    element.textContent = ''; // Efface le contenu précédent
+    var index = 0;
+    function afficherCaractere() {
+        if (index < reponse.length) {
+            element.textContent += reponse.charAt(index);
+            index++;
+            setTimeout(afficherCaractere, 50); // Délai entre chaque caractère (en millisecondes)
+        } else {
+            element.style.opacity = '1'; // Affiche complètement la réponse une fois terminée
+        }
+    }
+    afficherCaractere();
+}
+
+function repondreQuestion(question) {
+    question = question.toLowerCase(); // Convertir la question en minuscules pour faciliter la correspondance
+    
+    // Vérifier si la question contient une opération mathématique
+    if (question.includes("combien font") || question.includes("calcul")) {
+        // Extraire les nombres et l'opérateur de la question
+        var match = question.match(/(\d+) ([+\-*\/]) (\d+)/);
+        if (match) {
+            var num1 = parseInt(match[1]);
+            var operateur = match[2];
+            var num2 = parseInt(match[3]);
+            var resultat;
+            switch (operateur) {
+                case '+':
+                    resultat = num1 + num2;
+                    break;
+                case '-':
+                    resultat = num1 - num2;
+                    break;
+                case '*':
+                    resultat = num1 * num2;
+                    break;
+                case '/':
+                    resultat = num1 / num2;
+                    break;
+                default:
+                    return "Désolé, je ne peux pas effectuer ce calcul.";
+            }
+            return "Le résultat de " + num1 + " " + operateur + " " + num2 + " = " + resultat + ".";
+        } else {
+            return "Désolé, je ne peux pas effectuer ce calcul.";
+        }
+    }
+    
+    // Réponses prédéfinies pour d'autres types de questions
+    switch (true) {
+        case question.includes("quel est ton nom"):
+            return "Je suis Azana, votre Assistant IA.";
+       
+       case question.includes("qui vous a crée"):
+            return "Je suis crée par COSMOS X .";
+        
+       
+        case question.includes("quelle est la capitale de la france"):
+            return "La capitale de la France est Paris.";
+        case question.includes("qu'est-ce que le machine learning"):
+            return "Le machine learning est une branche de l'intelligence artificielle qui permet aux ordinateurs d'apprendre à partir de données et de réaliser des tâches sans être explicitement programmés.";
+        case question.includes("comment ça va") && question.includes("azana"):
+            return "Je suis une IA, donc je ne ressens pas d'émotions, mais je suis prête à vous aider !";
+        case question.includes("adressage réseau"):
+            return "L'adressage réseau est un système qui permet d'attribuer des adresses uniques à chaque appareil connecté à un réseau, afin de les identifier et de les localiser.";
+        case question.includes("protocoles de communication réseau"):
+            return "Les protocoles de communication réseau sont des règles et des normes qui définissent la manière dont les appareils communiquent et échangent des données sur un réseau, tels que TCP/IP, HTTP, FTP, etc.";
+        case question.includes("modèles des couches"):
+            return "Les modèles des couches, comme le modèle OSI ou le modèle TCP/IP, sont des frameworks qui décomposent les fonctionnalités de communication réseau en plusieurs couches distinctes, chacune étant responsable de tâches spécifiques.";
+        case question.includes("configuration routeur"):
+            return "La configuration d'un routeur consiste à définir ses paramètres, tels que les adresses IP, les tables de routage, les règles de pare-feu, etc., afin de lui permettre de diriger efficacement le trafic réseau entre différents réseaux.";
+        case question.includes("configuration commutateur"):
+            return "La configuration d'un commutateur réseau implique généralement la définition de ses paramètres de port, de VLAN, de sécurité, etc., pour gérer efficacement le trafic et assurer la connectivité au sein du réseau local.";
+        default:
+            return "Désolé, je ne peux pas répondre à cette question.";
+    }
+}
+
+// Affiche la dernière réponse stockée en local storage
+function afficherReponsesStockees() {
+    var reponse = document.getElementById('reponse');
+    var derniereReponse = localStorage.getItem('derniereReponse');
+    if (derniereReponse) {
+        reponse.textContent = derniereReponse;
+        afficherReponseTypewriter(derniereReponse, reponse);
+    }
+}
+</script>
+</body>
+</html>
